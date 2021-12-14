@@ -1,6 +1,24 @@
 library(tidyverse)
 library(gridExtra)
 
+dog <- Count[Count$Species == 'Dog',]
+dog$SNP<-factor(dog$SNP,levels = c("CT","GA","AG","TC","GT","CA","GC","CG","AC","TG","AT","TA"))
+plot_list <- list()
+for (i in unique(dog$Branch)) {
+  plot<-filter(dog,Branch==i)
+  Sum<-sum(plot$Count)
+  plot$Frac<-plot$Count/Sum
+  plot_list[[i]] <-ggplot(data=plot, aes(x=factor(SNP),y=Frac),fill=SNP) + 
+    geom_bar(position="dodge", stat="identity",color="black",width = 0.8)+
+    #scale_fill_manual(values = Self1)+#facet_grid(~Branch)+
+    labs(x='',y='SNV count',title = paste0(i,"\t",Sum))+
+    scale_y_continuous(breaks = seq(0,0.5,0.1),limits = c(0,.5))+
+    my_theme2#2+guides(fill=F)
+}
+do.call(grid.arrange, plot_list)
+
+
+
 Count<-read.table("Fig7.txt",sep="\t",header = T,stringsAsFactors = F)
 
 #Count <- filter(Count,!grepl( "Bat_",Species))
